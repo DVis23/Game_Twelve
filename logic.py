@@ -15,7 +15,7 @@ class Twelve:
         self.length = length  # Длина игрового поля
         self.count = count  # Количество начальных значений в клетках
         self.game_board = [[0 for i in range(length)] for j in range(length)]  # Игровое поле
-        self.game_state = Game_State.IN_PROGRESS #
+        self.game_state = Game_State.IN_PROGRESS  # Состояние игры
         self.generate_random_cells(self.count, 1, 3, True)
 
     def move(self, x1, y1, x2, y2):
