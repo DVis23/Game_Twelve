@@ -10,16 +10,13 @@ class Game_State(Enum):
 
 
 class Twelve:
-    def __init__(self):
+    def __init__(self, length, count):
         self.score = 0
-        self.game_state = None
-        self.game_board = None
-        self.generate_new()
-
-    def generate_new(self):
-        self.game_board = [[0 for i in range(5)] for j in range(5)]
+        self.length = length
+        self.count = count
+        self.game_board = [[0 for i in range(length)] for j in range(length)]
         self.game_state = Game_State.IN_PROGRESS
-        self.generate_random_cells(3, 1, 3, True)
+        self.generate_random_cells(self.count, 1, 3, True)
 
     def move(self, x1, y1, x2, y2):
         # Делаем проверку на осуществимость данного шага
@@ -35,7 +32,7 @@ class Twelve:
                     self.game_state = Game_State.WIN
                 else:
                     if self.count_zero_cells() >= 1:
-                        self.generate_random_cells(1, 1, 3, False)
+                        self.generate_random_cells(self.count - 2, 1, 3, False)
                         if self.count_zero_cells() == 0:
                             if not self.check_pairs():
                                 self.game_state = Game_State.DEFEAT
@@ -46,7 +43,7 @@ class Twelve:
             elif self.game_board[x2][y2] == 0:
                 self.game_board[x2][y2], self.game_board[x1][y1] = self.game_board[x1][y1], 0
                 if self.count_zero_cells() >= 2:
-                    self.generate_random_cells(2, 1, 3, False)
+                    self.generate_random_cells(self.count - 1, 1, 3, False)
                     if self.count_zero_cells() == 0:
                         if not self.check_pairs():
                             self.game_state = Game_State.DEFEAT
@@ -84,14 +81,14 @@ class Twelve:
             # Выбираем случайные три ячейки на поле
             occupied_cells = []
             while len(occupied_cells) < count:
-                cell_x, cell_y = random.randint(0, 4), random.randint(0, 4)
+                cell_x, cell_y = random.randint(0, self.length - 1), random.randint(0, self.length - 1)
                 if (cell_x, cell_y) not in occupied_cells:
                     occupied_cells.append((cell_x, cell_y))
         else:
             # Выбираем случайные три ячейки на поле
             occupied_cells = []
             while len(occupied_cells) < count:
-                cell_x, cell_y = random.randint(0, 4), random.randint(0, 4)
+                cell_x, cell_y = random.randint(0, self.length - 1), random.randint(0, self.length - 1)
                 if (cell_x, cell_y) not in occupied_cells and self.game_board[cell_x][cell_y] == 0:
                     occupied_cells.append((cell_x, cell_y))
 
@@ -116,13 +113,6 @@ class Twelve:
                     return True
         # Если не найдено никаких совпадающих пар, возвращаем False
         return False
-
-    def print_game_board(self):
-        for i in range(5):
-            print("|", end="")
-            for j in range(5):
-                print("{:<2}".format(self.game_board[i][j]), end="|")
-            print("\n" + "-" * 13)
 
 
 

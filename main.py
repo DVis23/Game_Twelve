@@ -13,7 +13,7 @@ os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'venv\Lib\site-packages\PyQt5\Qt5\pl
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.game = logic.Twelve()
+        self.game = logic.Twelve(5, 3)
         self.matrix = self.game.game_board
         self.previous_cell = None
         self.current_cell = None
@@ -145,7 +145,7 @@ class MainWindow(QMainWindow):
             self.current_cell = None
 
     def start_new_game(self):
-        self.game = logic.Twelve()
+        self.game = logic.Twelve(5, 3)
         self.update_view()
 
     def show_message(self):
