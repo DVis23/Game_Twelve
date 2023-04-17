@@ -1,5 +1,5 @@
 import random
-import math
+import copy
 from enum import Enum
 
 
@@ -22,58 +22,61 @@ class Twelve:
         self.generate_random_cells(3, 1, 3, True)
 
     def move(self, x1, y1, x2, y2):
-        if self.game_board[x1][y1] != 0 and (x1, y1) != (x2, y2) and self.can_reach_end(x1, y1, x2, y2):
+        # Делаем проверку на осуществимость данного шага
+        if self.game_board[x1][y1] != 0 and (x1, y1) != (x2, y2) and self.check_way(x1, y1, x2, y2):
 
+            # Если мы делаем слияние двух клеток
             if self.game_board[x1][y1] == self.game_board[x2][y2]:
                 self.game_board[x2][y2], self.game_board[x1][y1] = self.game_board[x2][y2] + 1, 0
+                # Обновляем игровой счет
                 self.score += self.game_board[x2][y2]
+                # Если мы победили, меняем состояние игры
                 if self.game_board[x2][y2] == 12:
                     self.game_state = Game_State.WIN
                 else:
-                    if self.check_zero_cells() >= 1:
+                    if self.count_zero_cells() >= 1:
                         self.generate_random_cells(1, 1, 3, False)
-                        if self.check_zero_cells() == 0:
+                        if self.count_zero_cells() == 0:
                             if not self.check_pairs():
                                 self.game_state = Game_State.DEFEAT
                     else:
                         self.game_state = Game_State.DEFEAT
 
+            # Если мы перемещаем клетку на пустое место
             elif self.game_board[x2][y2] == 0:
                 self.game_board[x2][y2], self.game_board[x1][y1] = self.game_board[x1][y1], 0
-                if self.check_zero_cells() >= 2:
+                if self.count_zero_cells() >= 2:
                     self.generate_random_cells(2, 1, 3, False)
-                    if self.check_zero_cells() == 0:
+                    if self.count_zero_cells() == 0:
                         if not self.check_pairs():
                             self.game_state = Game_State.DEFEAT
                 else:
                     self.game_state = Game_State.DEFEAT
 
-    def can_reach_end(self, x1, y1, x2, y2):
-        if math.fabs(x1 - x2) == 1 or math.fabs(y1 - y2):
-            return True
-
-        # Создаем список посещенных клеток и очередь,
-        # чтобы хранить клетки, которые еще не были обработаны
+    def check_way(self, x1, y1, x2, y2):
         visited = set()
-        queue = [(x1, y1)]
+        matrix = copy.deepcopy(self.game_board)
+        matrix[x1][y1] = 0
+        return self.dfs(x1, y1, x2, y2, matrix, visited)
 
-        # Пока очередь не пуста, извлекаем первый элемент и проверяем его соседей
-        while queue:
-            curr_x, curr_y = queue.pop(0)
-
-            # Если мы нашли конечную точку, то мы можем достичь её
-            if curr_x == x2 and curr_y == y2:
-                return True
-
-            # Обходим всех соседей, чтобы проверить возможность перемещения до них
-            for x, y in [(curr_x - 1, curr_y), (curr_x, curr_y - 1), (curr_x + 1, curr_y), (curr_x, curr_y + 1)]:
-                # Проверяем границы поля, что были посещены и что значение клетки равно 0
-                if 0 <= x < 5 and 0 <= y < 5 and (x, y) not in visited and self.game_board[y][x] == 0:
-                    # Добавляем соседнюю клетку в очередь на проверку
-                    visited.add((x, y))
-                    queue.append((x, y))
-
-        # Если очередь пуста, то путь до конечной точки не существует, возвращаем False
+    def dfs(self, x1, y1, x2, y2, matrix, visited):
+        if x1 < 0 or x1 >= len(matrix) or y1 < 0 or y1 >= len(matrix[0]):
+            return False
+        if (x1, y1) in visited:
+            return False
+        if x1 == x2 and y1 == y2:
+            return True
+        if matrix[x1][y1] != 0:
+            return False
+        visited.add((x1, y1))
+        if self.dfs(x1 + 1, y1, x2, y2, matrix, visited):
+            return True
+        if self.dfs(x1 - 1, y1, x2, y2, matrix, visited):
+            return True
+        if self.dfs(x1, y1 + 1, x2, y2, matrix, visited):
+            return True
+        if self.dfs(x1, y1 - 1, x2, y2, matrix, visited):
+            return True
         return False
 
     def generate_random_cells(self, count, a, b, empty):
@@ -96,7 +99,7 @@ class Twelve:
         for cell in occupied_cells:
             self.game_board[cell[0]][cell[1]] = random.randint(a, b)
 
-    def check_zero_cells(self):
+    def count_zero_cells(self):
         zero_cells = 0
         for row in self.game_board:
             for cell in row:
