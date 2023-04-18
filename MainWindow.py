@@ -1,9 +1,8 @@
 import os
-import sys
 import Twelve
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QFontDatabase, QFont
-from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QTableWidget, QTableWidgetItem
+from PyQt5.QtWidgets import QMainWindow, QAction, QTableWidget, QTableWidgetItem
 from PyQt5.QtWidgets import QMessageBox, QPushButton, QLabel, QVBoxLayout, QWidget, QHBoxLayout
 os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'venv\Lib\site-packages\PyQt5\Qt5\plugins'
 
@@ -11,8 +10,10 @@ os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'venv\Lib\site-packages\PyQt5\Qt5\pl
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.game = Twelve.Twelve(5, 3)
-        self.matrix = self.game.game_board
+        self.length = 5
+        self.count = 3
+        self.game = Twelve.Twelve(self.length, self.count)
+        self.matrix = self.game._game_board
         self.previous_cell = None
         self.current_cell = None
         self.background_color_1 = QColor(34, 30, 40)
@@ -36,7 +37,7 @@ class MainWindow(QMainWindow):
         layout = QHBoxLayout()
 
         # Игровое поле
-        self.gameTable = QTableWidget(5, 5)
+        self.gameTable = QTableWidget(self.length, self.length)
         layout.addWidget(self.gameTable)
         self.gameTable.setStyleSheet(f'QTableView {{gridline-color: {self.foreground_color.name()}}};')
         self.gameTable.horizontalHeader().setVisible(False)  # удаляем заголовки столбцов
@@ -118,7 +119,7 @@ class MainWindow(QMainWindow):
             self.gameTable.item(self.current_cell[0], self.current_cell[1]).setBackground(self.background_color_1)
             self.previous_cell = None
             self.current_cell = None
-        self.matrix = self.game.game_board
+        self.matrix = self.game._game_board
         self.draw_matrix()
         self.scoreLabel.setText("Счет: " + str(self.game.score))
         if self.game.game_state != Twelve.Game_State.PLAYING:
@@ -143,7 +144,7 @@ class MainWindow(QMainWindow):
             self.current_cell = None
 
     def start_new_game(self):
-        self.game = Twelve.Twelve(5, 3)
+        self.game = Twelve.Twelve(self.length, self.count)
         self.update_view()
 
     def show_message(self):
