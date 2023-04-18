@@ -2,8 +2,10 @@ import os
 import Twelve
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QFontDatabase, QFont
-from PyQt5.QtWidgets import QMainWindow, QAction, QTableWidget, QTableWidgetItem
+from PyQt5.QtWidgets import QMainWindow, QAction, QTableWidget, QTableWidgetItem, QColorDialog, QDialog
 from PyQt5.QtWidgets import QMessageBox, QPushButton, QLabel, QVBoxLayout, QWidget, QHBoxLayout
+from DesignThemeWindow import DesignThemeWindow, DESIGN_THEME
+
 os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'venv\Lib\site-packages\PyQt5\Qt5\plugins'
 
 
@@ -13,14 +15,14 @@ class MainWindow(QMainWindow):
         self.length = 5
         self.count = 3
         self.game = Twelve.Twelve(self.length, self.count)
+        self.design_theme = None
         self.previous_cell = None
         self.current_cell = None
-        self.background_color_1 = QColor(34, 30, 40)
-        self.background_color_2 = QColor(23, 20, 27)
-        self.foreground_color = QColor(255, 255, 255)
-        self.previous_color = QColor(78, 238, 184)
-        self.current_color = QColor(236, 67, 67)
-        self.dark_theme = True
+        self.current_color = None
+        self.previous_color = None
+        self.foreground_color = None
+        self.background_color_2 = None
+        self.background_color_1 = None
 
         font_id = QFontDatabase.addApplicationFont('font/font_1.ttf')
         font_1 = QFontDatabase.applicationFontFamilies(font_id)[0]
@@ -29,7 +31,6 @@ class MainWindow(QMainWindow):
         self.number_font = QFont(font_1, 23)
 
         self.setFixedSize(600, 450)
-        self.setStyleSheet(f'background-color: {self.background_color_2.name()}; color: white;')
         self.setWindowTitle("TWELVE")
         self.centralWidget = QWidget()
         self.setCentralWidget(self.centralWidget)
@@ -38,7 +39,6 @@ class MainWindow(QMainWindow):
         # Игровое поле
         self.gameTable = QTableWidget(self.length, self.length)
         layout.addWidget(self.gameTable)
-        self.gameTable.setStyleSheet(f'QTableView {{gridline-color: {self.foreground_color.name()}}};')
         self.gameTable.horizontalHeader().setVisible(False)  # удаляем заголовки столбцов
         self.gameTable.verticalHeader().setVisible(False)  # удаляем заголовки строк
         self.gameTable.setFixedSize(5 * 80 + 2, 5 * 80 + 2)  # фиксированный размер ячеек
@@ -54,8 +54,6 @@ class MainWindow(QMainWindow):
                 self.gameTable.setItem(i, j, new_item)
                 self.gameTable.item(i, j).setTextAlignment(Qt.AlignCenter)
                 self.gameTable.item(i, j).setFont(self.number_font)
-                self.gameTable.item(i, j).setBackground(self.background_color_1)
-                self.gameTable.item(i, j).setForeground(self.foreground_color)
         self.draw_matrix()
 
         # убираем полосы прокрутки
@@ -68,13 +66,11 @@ class MainWindow(QMainWindow):
         self.updateButton = QPushButton("Сделать ход")
         self.updateButton.setFixedSize(173, 60)
         self.updateButton.clicked.connect(self.update_view)
-        self.updateButton.setStyleSheet(f'background-color: {self.background_color_1.name()}; color: {self.previous_color.name()};')
         self.updateButton.setFont(self.font_button)
         controlLayout.addWidget(self.updateButton)
 
         self.scoreLabel = QLabel("Счет: 0")
         self.scoreLabel.setFont(self.font_text)
-        self.scoreLabel.setStyleSheet(f'color: {self.current_color.name()};')
         self.scoreLabel.setAlignment(Qt.AlignCenter)
         controlLayout.addWidget(self.scoreLabel)
 
@@ -84,7 +80,6 @@ class MainWindow(QMainWindow):
 
         # Меню
         self.menubar = self.menuBar()
-        self.menubar.setStyleSheet(f'color: {self.previous_color.name()};')
         fileMenu = self.menubar.addMenu('&Настройки')
         self.menubar.setFont(self.font_text)
         fileMenu.setFont(self.font_text)
@@ -100,6 +95,8 @@ class MainWindow(QMainWindow):
         exitAction.setShortcut('Ctrl+Q')
         exitAction.triggered.connect(self.close)
         fileMenu.addAction(exitAction)
+
+        self.enter_theme(DESIGN_THEME.DARK_THEME)
 
     def draw_matrix(self):
         # устанавливаем значения в таблицу
@@ -156,28 +153,37 @@ class MainWindow(QMainWindow):
         msg_box.exec_()
 
     def change_theme(self):
-        if self.dark_theme:
+        color_dialog = DesignThemeWindow(self.design_theme)
+        if color_dialog.exec_() == QDialog.Accepted and color_dialog.design_theme is not None:
+            design_theme = color_dialog.design_theme
+            self.enter_theme(design_theme)
+
+    def enter_theme(self, design_theme: DESIGN_THEME):
+        if design_theme == DESIGN_THEME.DAY_THEME:
             self.background_color_1 = QColor(255, 255, 255)
             self.background_color_2 = QColor(245, 245, 245)
             self.foreground_color = QColor(0, 0, 0)
+            self.previous_color = QColor(78, 238, 184)
+            self.current_color = QColor(236, 67, 67)
             self.setStyleSheet(f'background-color: {self.background_color_2.name()}; color: {self.foreground_color.name()};')
             self.gameTable.setStyleSheet(f'QTableView {{gridline-color: {self.foreground_color.name()}}}')
             self.updateButton.setStyleSheet(f'background-color: {self.background_color_2.name()}; color: {self.foreground_color.name()};')
             self.menubar.setStyleSheet(f'color: {self.foreground_color.name()};')
             self.scoreLabel.setStyleSheet(f'color: {self.foreground_color.name()};')
-            self.dark_theme = False
-        else:
+        elif design_theme == DESIGN_THEME.DARK_THEME:
             self.background_color_1 = QColor(34, 30, 40)
             self.background_color_2 = QColor(23, 20, 27)
             self.foreground_color = QColor(255, 255, 255)
+            self.previous_color = QColor(78, 238, 184)
+            self.current_color = QColor(236, 67, 67)
             self.setStyleSheet(f'background-color: {self.background_color_2.name()}; color: {self.foreground_color.name()};')
             self.gameTable.setStyleSheet(f'QTableView {{gridline-color: {self.foreground_color.name()}}}')
             self.updateButton.setStyleSheet(f'background-color: {self.background_color_1.name()}; color: {self.previous_color.name()};')
             self.menubar.setStyleSheet(f'color: {self.previous_color.name()};')
             self.scoreLabel.setStyleSheet(f'color: {self.current_color.name()};')
-            self.dark_theme = True
         for i in range(self.gameTable.rowCount()):
             for j in range(self.gameTable.columnCount()):
                 self.gameTable.item(i, j).setBackground(self.background_color_1)
                 self.gameTable.item(i, j).setForeground(self.foreground_color)
+        self.design_theme = design_theme
         self.draw_matrix()
