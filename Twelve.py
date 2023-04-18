@@ -46,6 +46,9 @@ class Twelve:
     def game_state(self, value):
         self._game_state = value
 
+    def __getitem__(self, indices: tuple) -> int:
+        return self._game_board[indices[0]][indices[1]]
+
     def move(self, x1, y1, x2, y2):
         # Делаем проверку на осуществимость данного шага
         if self._game_board[x1][y1] != 0 and (x1, y1) != (x2, y2) and self._check_way(x1, y1, x2, y2):
