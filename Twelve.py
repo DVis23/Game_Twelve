@@ -34,6 +34,10 @@ class Twelve:
     def game_state(self) -> Game_State:
         return self._game_state
 
+    @property
+    def game_board(self):
+        return copy.deepcopy(self._game_board)
+
     @score.setter
     def score(self, value):
         self._score = value
@@ -41,12 +45,6 @@ class Twelve:
     @game_state.setter
     def game_state(self, value):
         self._game_state = value
-
-    def __getitem__(self, indices: tuple) -> int:
-        return self._game_board[indices[0]][indices[1]]
-
-    def game_board(self):
-        return copy.deepcopy(self._game_board)
 
     def move(self, x1, y1, x2, y2):
         # Делаем проверку на осуществимость данного шага
@@ -95,7 +93,7 @@ class Twelve:
     # Проверка на наличие пути от одной клетки к другой
     def _check_way(self, x1, y1, x2, y2):
         visited = set()
-        matrix = self.game_board()
+        matrix = self.game_board
         matrix[x1][y1] = 0
         return self._dfs(x1, y1, x2, y2, matrix, visited)
 

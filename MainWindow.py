@@ -13,7 +13,6 @@ class MainWindow(QMainWindow):
         self.length = 5
         self.count = 3
         self.game = Twelve.Twelve(self.length, self.count)
-        self.matrix = self.game._game_board
         self.previous_cell = None
         self.current_cell = None
         self.background_color_1 = QColor(34, 30, 40)
@@ -50,9 +49,9 @@ class MainWindow(QMainWindow):
             self.gameTable.setRowHeight(i, 80)
             for j in range(self.gameTable.columnCount()):
                 self.gameTable.setColumnWidth(j, 80)
-                newItem = QTableWidgetItem("")
-                newItem.setFlags(Qt.ItemIsEnabled)
-                self.gameTable.setItem(i, j, newItem)
+                new_item = QTableWidgetItem("")
+                new_item.setFlags(Qt.ItemIsEnabled)
+                self.gameTable.setItem(i, j, new_item)
                 self.gameTable.item(i, j).setTextAlignment(Qt.AlignCenter)
                 self.gameTable.item(i, j).setFont(self.number_font)
                 self.gameTable.item(i, j).setBackground(self.background_color_1)
@@ -106,8 +105,8 @@ class MainWindow(QMainWindow):
         # устанавливаем значения в таблицу
         for i in range(self.gameTable.rowCount()):
             for j in range(self.gameTable.columnCount()):
-                if self.matrix[i][j] != 0:
-                    self.gameTable.item(i, j).setText(str(self.matrix[i][j]))
+                if self.game.game_board[i][j] != 0:
+                    self.gameTable.item(i, j).setText(str(self.game.game_board[i][j]))
                 else:
                     self.gameTable.item(i, j).setText('')
 
@@ -119,7 +118,6 @@ class MainWindow(QMainWindow):
             self.gameTable.item(self.current_cell[0], self.current_cell[1]).setBackground(self.background_color_1)
             self.previous_cell = None
             self.current_cell = None
-        self.matrix = self.game._game_board
         self.draw_matrix()
         self.scoreLabel.setText("Счет: " + str(self.game.score))
         if self.game.game_state != Twelve.Game_State.PLAYING:
