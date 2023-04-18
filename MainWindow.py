@@ -5,6 +5,7 @@ from PyQt5.QtGui import QColor, QFontDatabase, QFont
 from PyQt5.QtWidgets import QMainWindow, QAction, QTableWidget, QTableWidgetItem, QColorDialog, QDialog
 from PyQt5.QtWidgets import QMessageBox, QPushButton, QLabel, QVBoxLayout, QWidget, QHBoxLayout
 from DesignThemeWindow import DesignThemeWindow, DESIGN_THEME
+from GameRulesWindow import GameRulesWindow
 
 os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'venv\Lib\site-packages\PyQt5\Qt5\plugins'
 
@@ -87,10 +88,14 @@ class MainWindow(QMainWindow):
         newGameAction.setShortcut('Ctrl+E')
         newGameAction.triggered.connect(self.start_new_game)
         fileMenu.addAction(newGameAction)
-        changeTheme = QAction('Поменять тему', self)
+        changeTheme = QAction('Сменить тему', self)
         changeTheme.setShortcut('Ctrl+S')
         changeTheme.triggered.connect(self.change_theme)
         fileMenu.addAction(changeTheme)
+        gameRules = QAction('Правила игры', self)
+        gameRules.setShortcut('Ctrl+W')
+        gameRules.triggered.connect(self.show_game_rules)
+        fileMenu.addAction(gameRules)
         exitAction = QAction('Выход', self)
         exitAction.setShortcut('Ctrl+Q')
         exitAction.triggered.connect(self.close)
@@ -152,10 +157,14 @@ class MainWindow(QMainWindow):
         msg_box.buttonClicked.connect(self.start_new_game)
         msg_box.exec_()
 
+    def show_game_rules(self):
+        rules_dialog = GameRulesWindow(self.design_theme)
+        rules_dialog.exec_()
+
     def change_theme(self):
-        color_dialog = DesignThemeWindow(self.design_theme)
-        if color_dialog.exec_() == QDialog.Accepted and color_dialog.design_theme is not None:
-            design_theme = color_dialog.design_theme
+        theme_dialog = DesignThemeWindow(self.design_theme)
+        if theme_dialog.exec_() == QDialog.Accepted and theme_dialog.design_theme is not None:
+            design_theme = theme_dialog.design_theme
             self.enter_theme(design_theme)
 
     def enter_theme(self, design_theme: DESIGN_THEME):

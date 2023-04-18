@@ -28,6 +28,7 @@ class DesignThemeWindow(QDialog):
         self.button_day_theme = QPushButton("DAY_THEME")
         self.layout.addWidget(self.button_dark_theme)
         self.layout.addWidget(self.button_day_theme)
+
         font_id = QFontDatabase.addApplicationFont('font/font_1.ttf')
         font_1 = QFontDatabase.applicationFontFamilies(font_id)[0]
         self.font_text = QFont(font_1, 10)
