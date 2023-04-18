@@ -4,23 +4,47 @@ from enum import Enum
 
 
 class Game_State(Enum):
-    IN_PROGRESS = 0
+    PLAYING = 0
     WIN = 1
     DEFEAT = 2
 
 
 class Twelve:
     def __init__(self, length, count):
-        self.score = 0  # Игровой счет
-        self.length = length  # Длина игрового поля
-        self.count = count  # Количество начальных значений в клетках
+        self._score = 0  # Игровой счет
+        self._length = length  # Длина игрового поля
+        self._count = count  # Количество начальных значений в клетках
         self.game_board = [[0 for i in range(length)] for j in range(length)]  # Игровое поле
-        self.game_state = Game_State.IN_PROGRESS  # Состояние игры
-        self.generate_random_cells(self.count, 1, 3, True)
+        self._game_state = Game_State.PLAYING  # Состояние игры
+        self._generate_random_cells(self.count, 1, 3, True)  # Генерируем начальные числа на игровом поле
+
+    @property
+    def score(self) -> int:
+        return self._score
+
+    @property
+    def length(self) -> int:
+        return self._length
+
+    @property
+    def count(self) -> int:
+        return self._count
+
+    @property
+    def game_state(self) -> Game_State:
+        return self._game_state
+
+    @score.setter
+    def score(self, value):
+        self._score = value
+
+    @game_state.setter
+    def game_state(self, value):
+        self._game_state = value
 
     def move(self, x1, y1, x2, y2):
         # Делаем проверку на осуществимость данного шага
-        if self.game_board[x1][y1] != 0 and (x1, y1) != (x2, y2) and self.check_way(x1, y1, x2, y2):
+        if self.game_board[x1][y1] != 0 and (x1, y1) != (x2, y2) and self._check_way(x1, y1, x2, y2):
 
             # Если мы делаем слияние двух клеток
             if self.game_board[x1][y1] == self.game_board[x2][y2]:
@@ -32,13 +56,13 @@ class Twelve:
                     self.game_state = Game_State.WIN
                 # Иначе добавляем новые значения в ячейки
                 else:
-                    count_zero_cells = self.count_zero_cells()
+                    count_zero_cells = self._count_zero_cells()
                     if count_zero_cells > self.count - 2:
-                        self.generate_random_cells(self.count - 2, 1, 3, False)
+                        self._generate_random_cells(self.count - 2, 1, 3, False)
                     elif count_zero_cells == self.count - 2:
-                        self.generate_random_cells(self.count - 2, 1, 3, False)
+                        self._generate_random_cells(self.count - 2, 1, 3, False)
                         # Если у нас не осталось свободных и нет вариантов хода, меняем состояние игры на проигрыш
-                        if not self.check_pairs():
+                        if not self._check_pairs():
                             self.game_state = Game_State.DEFEAT
                     # Если у нас осталось меньше свободных клеток, чем должно быть сгенерировано,
                     # меняем состояние игры на проигрыш
@@ -49,13 +73,13 @@ class Twelve:
             elif self.game_board[x2][y2] == 0:
                 self.game_board[x2][y2], self.game_board[x1][y1] = self.game_board[x1][y1], 0
                 # Добавляем новые значения в ячейки
-                count_zero_cells = self.count_zero_cells()
+                count_zero_cells = self._count_zero_cells()
                 if count_zero_cells > self.count - 1:
-                    self.generate_random_cells(self.count - 1, 1, 3, False)
+                    self._generate_random_cells(self.count - 1, 1, 3, False)
                 elif count_zero_cells == self.count - 1:
-                    self.generate_random_cells(self.count - 1, 1, 3, False)
+                    self._generate_random_cells(self.count - 1, 1, 3, False)
                     # Если у нас не осталось свободных и нет вариантов хода, меняем состояние игры на проигрыш
-                    if not self.check_pairs():
+                    if not self._check_pairs():
                         self.game_state = Game_State.DEFEAT
                 # Если у нас осталось меньше свободных клеток, чем должно быть сгенерировано,
                 # меняем состояние игры на проигрыш
@@ -63,14 +87,14 @@ class Twelve:
                     self.game_state = Game_State.DEFEAT
 
     # Проверка на наличие пути от одной клетки к другой
-    def check_way(self, x1, y1, x2, y2):
+    def _check_way(self, x1, y1, x2, y2):
         visited = set()
         matrix = copy.deepcopy(self.game_board)
         matrix[x1][y1] = 0
-        return self.dfs(x1, y1, x2, y2, matrix, visited)
+        return self._dfs(x1, y1, x2, y2, matrix, visited)
 
     # Обход в глубину
-    def dfs(self, x1, y1, x2, y2, matrix, visited):
+    def _dfs(self, x1, y1, x2, y2, matrix, visited):
         # Проверяем, находится ли ячейка в матрице
         if x1 < 0 or x1 >= len(matrix) or y1 < 0 or y1 >= len(matrix[0]):
             return False
@@ -83,18 +107,18 @@ class Twelve:
             return False
         # Добавляем ячейку в посещения
         visited.add((x1, y1))
-        if self.dfs(x1 + 1, y1, x2, y2, matrix, visited):
+        if self._dfs(x1 + 1, y1, x2, y2, matrix, visited):
             return True
-        if self.dfs(x1 - 1, y1, x2, y2, matrix, visited):
+        if self._dfs(x1 - 1, y1, x2, y2, matrix, visited):
             return True
-        if self.dfs(x1, y1 + 1, x2, y2, matrix, visited):
+        if self._dfs(x1, y1 + 1, x2, y2, matrix, visited):
             return True
-        if self.dfs(x1, y1 - 1, x2, y2, matrix, visited):
+        if self._dfs(x1, y1 - 1, x2, y2, matrix, visited):
             return True
         return False
 
     # Генерируем в случайных ячейках случайные значения в заданном диапазоне
-    def generate_random_cells(self, count, a, b, empty):
+    def _generate_random_cells(self, count, a, b, empty):
         occupied_cells = []
         # Выбираем случайные ячейки на поле
         if empty:
@@ -114,7 +138,7 @@ class Twelve:
             self.game_board[cell[0]][cell[1]] = random.randint(a, b)
 
     # Количество нулевых клеток
-    def count_zero_cells(self):
+    def _count_zero_cells(self):
         zero_cells = 0
         for row in self.game_board:
             for cell in row:
@@ -123,7 +147,7 @@ class Twelve:
         return zero_cells
 
     # Проверка на то, существуют ли рядом стоящие одинаковые значения
-    def check_pairs(self):
+    def _check_pairs(self):
         for i in range(len(self.game_board)):
             for j in range(len(self.game_board[0])):
                 # Проверка для всех ячеек кроме крайних правых и крайних нижних
