@@ -31,13 +31,13 @@ class DesignThemeWindow(QDialog):
         self.setStyleSheet(now_design_theme)
 
     def enter_dark_theme(self):
-        with open('theme/dark_theme.qss', "r") as file:
+        with open('themes/dark_theme.qss', "r") as file:
             style = file.read()
             self.design_theme = style
         self.accept()
 
     def enter_day_theme(self):
-        with open('theme/day_theme.qss', "r") as file:
+        with open('themes/day_theme.qss', "r") as file:
             style = file.read()
             self.design_theme = style
         self.accept()

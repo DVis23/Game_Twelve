@@ -2,11 +2,10 @@ import os
 import Twelve
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QFontDatabase, QFont, QPalette
-from PyQt5.QtWidgets import QMainWindow, QAction, QTableWidget, QTableWidgetItem, QColorDialog, QDialog, QApplication
+from PyQt5.QtWidgets import QMainWindow, QAction, QTableWidget, QTableWidgetItem, QDialog, QApplication
 from PyQt5.QtWidgets import QMessageBox, QPushButton, QLabel, QVBoxLayout, QWidget, QHBoxLayout
 from DesignThemeWindow import DesignThemeWindow
 from GameRulesWindow import GameRulesWindow
-
 os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'venv\Lib\site-packages\PyQt5\Qt5\plugins'
 
 
@@ -97,7 +96,7 @@ class MainWindow(QMainWindow):
         exitAction.triggered.connect(self.close)
         fileMenu.addAction(exitAction)
 
-        with open('theme/dark_theme.qss', "r") as file:
+        with open('themes/dark_theme.qss', "r") as file:
             self.enter_theme(file.read())
 
     def draw_matrix(self):
