@@ -1,0 +1,20 @@
+QWidget {
+    background-color: rgb(245, 245, 245);
+    color: rgb(0, 0, 0);
+}
+
+QPushButton {
+    background-color: rgb(245, 245, 245);
+    color: rgb(0, 0, 0);
+}
+
+QLabel {
+    background-color: rgb(245, 245, 245);
+    color: rgb(0, 0, 0);
+}
+
+QTableWidget {
+    background-color: rgb(255, 255, 255);
+    color: rgb(0, 0, 0);
+    gridline-color: rgb(0, 0, 0);
+}

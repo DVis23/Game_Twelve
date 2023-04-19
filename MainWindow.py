@@ -1,8 +1,8 @@
 import os
 import Twelve
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor, QFontDatabase, QFont
-from PyQt5.QtWidgets import QMainWindow, QAction, QTableWidget, QTableWidgetItem, QColorDialog, QDialog
+from PyQt5.QtGui import QColor, QFontDatabase, QFont, QPalette
+from PyQt5.QtWidgets import QMainWindow, QAction, QTableWidget, QTableWidgetItem, QColorDialog, QDialog, QApplication
 from PyQt5.QtWidgets import QMessageBox, QPushButton, QLabel, QVBoxLayout, QWidget, QHBoxLayout
 from DesignThemeWindow import DesignThemeWindow, DESIGN_THEME
 from GameRulesWindow import GameRulesWindow
@@ -19,11 +19,8 @@ class MainWindow(QMainWindow):
         self.design_theme = None
         self.previous_cell = None
         self.current_cell = None
-        self.current_color = None
-        self.previous_color = None
-        self.foreground_color = None
-        self.background_color_2 = None
-        self.background_color_1 = None
+        self.current_color = QColor(236, 67, 67)
+        self.previous_color = QColor(78, 238, 184)
 
         font_id = QFontDatabase.addApplicationFont('font/font_1.ttf')
         font_1 = QFontDatabase.applicationFontFamilies(font_id)[0]
@@ -45,7 +42,7 @@ class MainWindow(QMainWindow):
         self.gameTable.setFixedSize(5 * 80 + 2, 5 * 80 + 2)  # фиксированный размер ячеек
         self.gameTable.cellClicked.connect(self.on_cell_clicked)
 
-        # изменяем размер ячеек
+        # Изменяем размер ячеек
         for i in range(self.gameTable.rowCount()):
             self.gameTable.setRowHeight(i, 80)
             for j in range(self.gameTable.columnCount()):
@@ -55,9 +52,8 @@ class MainWindow(QMainWindow):
                 self.gameTable.setItem(i, j, new_item)
                 self.gameTable.item(i, j).setTextAlignment(Qt.AlignCenter)
                 self.gameTable.item(i, j).setFont(self.number_font)
-        self.draw_matrix()
 
-        # убираем полосы прокрутки
+        # Убираем полосы прокрутки
         self.gameTable.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.gameTable.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
@@ -104,7 +100,7 @@ class MainWindow(QMainWindow):
         self.enter_theme(DESIGN_THEME.DARK_THEME)
 
     def draw_matrix(self):
-        # устанавливаем значения в таблицу
+        # Устанавливаем значения в таблицу
         for i in range(self.gameTable.rowCount()):
             for j in range(self.gameTable.columnCount()):
                 if self.game.game_board[i][j] != 0:
@@ -113,19 +109,26 @@ class MainWindow(QMainWindow):
                     self.gameTable.item(i, j).setText('')
 
     def update_view(self):
-        # генерируем новую матрицу
+        # Если у нас выбраны ячейки, делаем ход
         if self.previous_cell is not None and self.current_cell is not None:
+            # Убираем графическое выделение ячеек
+            color = self.gameTable.palette().color(QPalette.Base)
+            self.gameTable.item(self.previous_cell[0], self.previous_cell[1]).setBackground(color)
+            self.gameTable.item(self.current_cell[0], self.current_cell[1]).setBackground(color)
+            # Делаем ход
             self.game.move(self.previous_cell[0], self.previous_cell[1], self.current_cell[0], self.current_cell[1])
-            self.gameTable.item(self.previous_cell[0], self.previous_cell[1]).setBackground(self.background_color_1)
-            self.gameTable.item(self.current_cell[0], self.current_cell[1]).setBackground(self.background_color_1)
+            # Убираем выделение ячеек
             self.previous_cell = None
             self.current_cell = None
         self.draw_matrix()
+        # Меняем счет
         self.scoreLabel.setText("Счет: " + str(self.game.score))
+        # Если состояние игры изменилось, выводим сообщение о ПОБЕДЕ/ПРОИГРЫШЕ
         if self.game.game_state != Twelve.Game_State.PLAYING:
             self.show_message()
 
     def on_cell_clicked(self, row, column):
+        color = self.gameTable.palette().color(QPalette.Base)
         # Если это первый клик, запоминаем координаты ячейки и выделяем ее зеленым
         if self.previous_cell is None:
             self.previous_cell = (row, column)
@@ -138,8 +141,8 @@ class MainWindow(QMainWindow):
             self.gameTable.item(row, column).setBackground(self.current_color)
         # Если это третий клик, сбрасываем значения и выделение ячеек
         else:
-            self.gameTable.item(self.previous_cell[0], self.previous_cell[1]).setBackground(self.background_color_1)
-            self.gameTable.item(self.current_cell[0], self.current_cell[1]).setBackground(self.background_color_1)
+            self.gameTable.item(self.previous_cell[0], self.previous_cell[1]).setBackground(color)
+            self.gameTable.item(self.current_cell[0], self.current_cell[1]).setBackground(color)
             self.previous_cell = None
             self.current_cell = None
 
@@ -168,31 +171,26 @@ class MainWindow(QMainWindow):
             self.enter_theme(design_theme)
 
     def enter_theme(self, design_theme: DESIGN_THEME):
-        if design_theme == DESIGN_THEME.DAY_THEME:
-            self.background_color_1 = QColor(255, 255, 255)
-            self.background_color_2 = QColor(245, 245, 245)
-            self.foreground_color = QColor(0, 0, 0)
-            self.previous_color = QColor(78, 238, 184)
-            self.current_color = QColor(236, 67, 67)
-            self.setStyleSheet(f'background-color: {self.background_color_2.name()}; color: {self.foreground_color.name()};')
-            self.gameTable.setStyleSheet(f'QTableView {{gridline-color: {self.foreground_color.name()}}}')
-            self.updateButton.setStyleSheet(f'background-color: {self.background_color_2.name()}; color: {self.foreground_color.name()};')
-            self.menubar.setStyleSheet(f'color: {self.foreground_color.name()};')
-            self.scoreLabel.setStyleSheet(f'color: {self.foreground_color.name()};')
-        elif design_theme == DESIGN_THEME.DARK_THEME:
-            self.background_color_1 = QColor(34, 30, 40)
-            self.background_color_2 = QColor(23, 20, 27)
-            self.foreground_color = QColor(255, 255, 255)
-            self.previous_color = QColor(78, 238, 184)
-            self.current_color = QColor(236, 67, 67)
-            self.setStyleSheet(f'background-color: {self.background_color_2.name()}; color: {self.foreground_color.name()};')
-            self.gameTable.setStyleSheet(f'QTableView {{gridline-color: {self.foreground_color.name()}}}')
-            self.updateButton.setStyleSheet(f'background-color: {self.background_color_1.name()}; color: {self.previous_color.name()};')
-            self.menubar.setStyleSheet(f'color: {self.previous_color.name()};')
-            self.scoreLabel.setStyleSheet(f'color: {self.current_color.name()};')
+        # Создаем словарь для соответствия темы и файлов QSS
+        theme_files = {
+            DESIGN_THEME.DAY_THEME: "theme/day_theme.qss",
+            DESIGN_THEME.DARK_THEME: "theme/dark_theme.qss"
+        }
+        # Проверяем, есть ли файл QSS для выбранной темы
+        if design_theme not in theme_files:
+            raise ValueError("Не найден файл QSS для выбранной темы")
+        # Загружаем стиль из файла QSS
+        with open(theme_files[design_theme], "r") as file:
+            style = file.read()
+            self.setStyleSheet(style)
+        # Добавляем вызов repaint(), чтобы гарантировать отрисовку стиля
+        self.repaint()
+        # Обрабатываем события для принудительной отрисовки
+        QApplication.processEvents()
+        self.design_theme = design_theme
+        color = self.gameTable.palette().color(QPalette.Base)
+        # Устанавливаем цвет фона для всех ячеек таблицы
         for i in range(self.gameTable.rowCount()):
             for j in range(self.gameTable.columnCount()):
-                self.gameTable.item(i, j).setBackground(self.background_color_1)
-                self.gameTable.item(i, j).setForeground(self.foreground_color)
-        self.design_theme = design_theme
+                self.gameTable.item(i, j).setBackground(color)
         self.draw_matrix()
