@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QFontDatabase, QFont, QPalette
 from PyQt5.QtWidgets import QMainWindow, QAction, QTableWidget, QTableWidgetItem, QColorDialog, QDialog, QApplication
 from PyQt5.QtWidgets import QMessageBox, QPushButton, QLabel, QVBoxLayout, QWidget, QHBoxLayout
-from DesignThemeWindow import DesignThemeWindow, DESIGN_THEME
+from DesignThemeWindow import DesignThemeWindow
 from GameRulesWindow import GameRulesWindow
 
 os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'venv\Lib\site-packages\PyQt5\Qt5\plugins'
@@ -97,7 +97,8 @@ class MainWindow(QMainWindow):
         exitAction.triggered.connect(self.close)
         fileMenu.addAction(exitAction)
 
-        self.enter_theme(DESIGN_THEME.DARK_THEME)
+        with open('theme/dark_theme.qss', "r") as file:
+            self.enter_theme(file.read())
 
     def draw_matrix(self):
         # Устанавливаем значения в таблицу
@@ -170,24 +171,13 @@ class MainWindow(QMainWindow):
             design_theme = theme_dialog.design_theme
             self.enter_theme(design_theme)
 
-    def enter_theme(self, design_theme: DESIGN_THEME):
-        # Создаем словарь для соответствия темы и файлов QSS
-        theme_files = {
-            DESIGN_THEME.DAY_THEME: "theme/day_theme.qss",
-            DESIGN_THEME.DARK_THEME: "theme/dark_theme.qss"
-        }
-        # Проверяем, есть ли файл QSS для выбранной темы
-        if design_theme not in theme_files:
-            raise ValueError("Не найден файл QSS для выбранной темы")
-        # Загружаем стиль из файла QSS
-        with open(theme_files[design_theme], "r") as file:
-            style = file.read()
-            self.setStyleSheet(style)
+    def enter_theme(self, style):
+        self.setStyleSheet(style)
         # Добавляем вызов repaint(), чтобы гарантировать отрисовку стиля
         self.repaint()
         # Обрабатываем события для принудительной отрисовки
         QApplication.processEvents()
-        self.design_theme = design_theme
+        self.design_theme = style
         color = self.gameTable.palette().color(QPalette.Base)
         # Устанавливаем цвет фона для всех ячеек таблицы
         for i in range(self.gameTable.rowCount()):

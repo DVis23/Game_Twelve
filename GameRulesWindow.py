@@ -1,18 +1,16 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QFontDatabase, QFont
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QWidget, QPushButton
-from DesignThemeWindow import DESIGN_THEME
 
 
 class GameRulesWindow(QDialog):
-    def __init__(self, design_theme: DESIGN_THEME):
+    def __init__(self, design_theme):
         super().__init__()
         self.background_color_1 = None
         self.background_color_2 = None
         self.foreground_color = None
         self.previous_color = None
         self.current_color = None
-        self.now_design_theme = design_theme
         self.setWindowTitle('Правила игры')
         self.label = QLabel(self)
         self.label.setText("""Логическая игра «Twelve» является аналогом игры 2048 с некоторыми отличиями. 
@@ -42,26 +40,7 @@ class GameRulesWindow(QDialog):
         layout.addWidget(self.label)
         layout.addWidget(self.close_button)
         self.setLayout(layout)
-        self.dialog_theme()
 
-    def dialog_theme(self):
-        if self.now_design_theme == DESIGN_THEME.DAY_THEME:
-            self.background_color_1 = QColor(255, 255, 255)
-            self.background_color_2 = QColor(245, 245, 245)
-            self.foreground_color = QColor(0, 0, 0)
-            self.previous_color = QColor(78, 238, 184)
-            self.current_color = QColor(236, 67, 67)
-            self.setStyleSheet(f'background-color: {self.background_color_2.name()}; color: {self.foreground_color.name()};')
-            self.close_button.setStyleSheet(f'background-color: {self.background_color_2.name()}; color: {self.foreground_color.name()};')
-            self.label.setStyleSheet(f'color: {self.foreground_color.name()};')
-        elif self.now_design_theme == DESIGN_THEME.DARK_THEME:
-            self.background_color_1 = QColor(34, 30, 40)
-            self.background_color_2 = QColor(23, 20, 27)
-            self.foreground_color = QColor(255, 255, 255)
-            self.previous_color = QColor(78, 238, 184)
-            self.current_color = QColor(236, 67, 67)
-            self.setStyleSheet(f'background-color: {self.background_color_2.name()}; color: {self.foreground_color.name()};')
-            self.close_button.setStyleSheet(f'background-color: {self.background_color_1.name()}; color: {self.previous_color.name()};')
-            self.label.setStyleSheet(f'color: {self.current_color.name()};')
+        self.setStyleSheet(design_theme)
 
 
