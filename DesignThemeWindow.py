@@ -5,12 +5,8 @@ from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton
 class DesignThemeWindow(QDialog):
     def __init__(self, now_design_theme):
         super().__init__()
-        self.current_color = None
-        self.previous_color = None
-        self.background_color_1 = None
-        self.background_color_2 = None
-        self.foreground_color = None
         self.design_theme = None
+
         self.setWindowTitle("Выбор темы")
         self.setFixedSize(400, 120)
         self.layout = QVBoxLayout(self)

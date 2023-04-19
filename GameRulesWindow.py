@@ -6,11 +6,6 @@ from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QWidget, QPushButton
 class GameRulesWindow(QDialog):
     def __init__(self, design_theme):
         super().__init__()
-        self.background_color_1 = None
-        self.background_color_2 = None
-        self.foreground_color = None
-        self.previous_color = None
-        self.current_color = None
         self.setWindowTitle('Правила игры')
         self.label = QLabel(self)
         self.label.setText("""Логическая игра «Twelve» является аналогом игры 2048 с некоторыми отличиями. 
